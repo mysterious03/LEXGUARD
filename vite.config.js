@@ -15,6 +15,10 @@ export default defineConfig({
         rewrite: (path) => path.replace(/^\/api-groq/, '')
       }
     }
+  },
+  test: {
+    environment: 'jsdom',
+    globals: true,
   }
 })
 

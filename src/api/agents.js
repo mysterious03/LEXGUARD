@@ -8,9 +8,15 @@
 import { callGemini, parseJSON, FLASH } from './gemini';
 
 // ─────────────────────────────────────────────────────────
-// AGENT 1: CLAUSE SPLITTER
-// Input: Raw document text
-// Output: Array of typed legal clauses
+// ─────────────────────────────────────────────────────────
+/**
+ * Agent 1: Clause Splitter
+ * Ingests a raw legal document and extracts individually typed clauses.
+ *
+ * @param {string} documentText - The raw text of the legal contract.
+ * @returns {Promise<Array<{id: number, type: string, text: string}>>} Array of parsed clauses.
+ * @throws {Error} If parsing fails or the LLM returns invalid JSON.
+ */
 // ─────────────────────────────────────────────────────────
 export async function splitClauses(documentText) {
   const prompt = `You are an expert Indian legal document parser.
@@ -75,9 +81,16 @@ CRITICAL RULES:
 
 
 // ─────────────────────────────────────────────────────────
-// AGENT 2: PROSECUTOR
-// Input: One clause (from ClauseSplitter)
-// Output: Risk analysis with toxic keywords, Indian law conflict
+// ─────────────────────────────────────────────────────────
+/**
+ * Agent 2: Prosecutor
+ * Aggressively attacks the clause from the perspective of an employee-rights lawyer.
+ *
+ * @param {Object} clause - The clause object from the ClauseSplitter.
+ * @param {string} clause.type - The category of the clause (e.g. NON_COMPETE).
+ * @param {string} clause.text - The actual text of the clause.
+ * @returns {Promise<{toxicKeywords: string[], extremeScenario: string, indianLawConflict: string, prosecutorScore: number}>} Prosecutor analysis.
+ */
 // ─────────────────────────────────────────────────────────
 export async function prosecute(clause) {
   const prompt = `You are a fierce Indian employment lawyer protecting the EMPLOYEE.
@@ -121,9 +134,15 @@ riskKeywords MUST be exact words/phrases copied verbatim from the clause text ab
 }
 
 // ─────────────────────────────────────────────────────────
-// AGENT 3: DEFENDER
-// Input: Same clause + FULL prosecutor output (chain link)
-// Output: Corporate rebuttal, market standard comparison
+// ─────────────────────────────────────────────────────────
+/**
+ * Agent 3: Defender
+ * Defends the clause from the perspective of corporate counsel, offering reasonable amendments.
+ *
+ * @param {Object} clause - The original clause.
+ * @param {Object} prosecution - The output from the Prosecutor agent.
+ * @returns {Promise<{marketStandardJustification: string, reasonableAmendment: string, defenderScore: number}>} Defender arguments and amendments.
+ */
 // ─────────────────────────────────────────────────────────
 export async function defend(clause, prosecutorOutput) {
   const prompt = `You are a senior corporate lawyer defending this contract clause for an Indian company.
@@ -170,9 +189,16 @@ Return ONLY raw JSON (no markdown):
 }
 
 // ─────────────────────────────────────────────────────────
-// AGENT 4: JUDGE
-// Input: Clause + FULL prosecutor output + FULL defender output (chain link)
-// Output: Final verdict, risk score, mandatory action
+// ─────────────────────────────────────────────────────────
+/**
+ * Agent 4: Judge
+ * Weighs both arguments and issues a final, impartial verdict on the safety of the clause.
+ *
+ * @param {Object} clause - The original clause.
+ * @param {Object} prosecution - The Prosecutor's analysis.
+ * @param {Object} defense - The Defender's analysis.
+ * @returns {Promise<{dangerScore: number, finalVerdict: string, theTrap: string}>} Judicial verdict and computed danger score (0-100).
+ */
 // ─────────────────────────────────────────────────────────
 export async function judgeClause(clause, prosecutorOutput, defenderOutput) {
   const prompt = `You are a retired Chief Justice of the Madras High Court, now an arbitrator specializing in Indian employment law disputes.
@@ -225,14 +251,20 @@ riskScore guide: CRITICAL = 76-100, HIGH = 51-75, MEDIUM = 26-50, SAFE = 0-25`;
   if (!result || !result.finalRiskLevel) {
     throw new Error(`JudgeAgent: Invalid JSON response. Raw: ${raw.slice(0, 300)}`);
   }
-  console.log('[JudgeAgent] Final verdict:', result.finalRiskLevel, '| Score:', result.riskScore, '| Action:', result.actionRequired);
+  console.log('[JudgeAgent] Final verdict:', result.finalRiskLevel, '| Score:', result.riskScore, '| Action:', result.requiredAction);
   return result;
 }
 
 // ─────────────────────────────────────────────────────────
-// AGENT 5: WAR ROOM (HR Negotiation Simulator)
-// Input: Clause + FULL judge output (chain link)
-// Output: 3-round email negotiation battle
+// ─────────────────────────────────────────────────────────
+/**
+ * Agent 5: HR War Room Simulator
+ * Simulates a multi-round email negotiation between the employee and HR.
+ *
+ * @param {Object} clause - The original clause.
+ * @param {Object} judgeData - The verdict from the Judge agent.
+ * @returns {Promise<Array<{round: number, actor: string, data: Object}>>} Array of negotiation rounds.
+ */
 // ─────────────────────────────────────────────────────────
 export async function runWarRoom(clause, judgeOutput, userRole, onRoundComplete) {
   // Round 1: Employee's negotiation email (uses judge verdict as basis)
@@ -321,9 +353,16 @@ Return ONLY raw JSON: { "counter": "full counter-argument text" }`;
 }
 
 // ─────────────────────────────────────────────────────────
-// AGENT 6: FUTURE SIMULATOR
-// Input: EVERYTHING from all previous agents (full chain)
-// Output: Deterministic consequence timeline
+// ─────────────────────────────────────────────────────────
+/**
+ * Agent 6: Future Simulation Engine
+ * Predicts the long-term consequences of signing the contract as-is.
+ *
+ * @param {Object} clause - The original clause.
+ * @param {Object} judgeData - The verdict from the Judge agent.
+ * @param {Array} warRoomData - The transcript from the War Room.
+ * @returns {Promise<{courtroomSummary: string[], specificRisksIfSigned: string[], warRoomFailureImpact: string, finalRecommendation: string, futureTimeline: Array<{time: string, event: string}>}>} Future simulation payload.
+ */
 // ─────────────────────────────────────────────────────────
 export async function simulateFuture(clause, prosecutorOutput, defenderOutput, judgeOutput, warRoomRounds, userRole, monthlySalaryRs) {
   const salary = Number(monthlySalaryRs) || 100000;

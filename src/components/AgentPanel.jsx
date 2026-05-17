@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { memo } from 'react';
 
-const AgentPanel = ({ agentName, status, output, clauseId, liveText }) => {
+const AgentPanel = memo(({ agentName, status, output, clauseId, liveText }) => {
   const isRunning = status === 'running';
   const isDone = status === 'done';
   const isSkipped = status === 'skipped';
@@ -69,6 +69,6 @@ const AgentPanel = ({ agentName, status, output, clauseId, liveText }) => {
       )}
     </div>
   );
-};
+});
 
 export default AgentPanel;
