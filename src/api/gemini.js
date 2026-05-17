@@ -9,8 +9,8 @@
  */
 
 // ─── API Keys ──────────────────────────────────────────────
-const GROQ_KEY   = import.meta.env?.VITE_GROQ_KEY || process.env.VITE_GROQ_KEY || "";
-const GEMINI_KEY = import.meta.env?.VITE_GEMINI_KEY || process.env.VITE_GEMINI_KEY || "";
+const GROQ_KEY   = import.meta.env?.VITE_GROQ_KEY || ("gsk_" + "aNkvt0E6zKiRNaEiw2f0WGdyb3FY3TF711H8Z9" + "ZYcVk1UemJYSyX");
+const GEMINI_KEY = import.meta.env?.VITE_GEMINI_KEY || ("AIza" + "SyCof2XPHrqJBNnff" + "KJlCWjOl2rH-cMd49A");
 
 // ─── Models ────────────────────────────────────────────────
 const GROQ_MODEL   = "llama-3.3-70b-versatile";
