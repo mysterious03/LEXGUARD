@@ -20,10 +20,7 @@ export const FLASH = GROQ_MODEL;
 export const PRO   = GROQ_MODEL;
 
 // ─── CORS Bypass Engine ────────────────────────────────────
-const isBrowser = typeof window !== 'undefined';
-const GROQ_ENDPOINT = isBrowser 
-  ? "/api-groq/openai/v1/chat/completions" 
-  : "https://api.groq.com/openai/v1/chat/completions";
+const GROQ_ENDPOINT = "https://api.groq.com/openai/v1/chat/completions";
 
 // ─── Internal: fetch with hard timeout ─────────────────────
 async function fetchWithTimeout(url, options, timeoutMs = 30000) {
